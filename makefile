@@ -5,7 +5,7 @@ C_FLAGS = -Wall -g -Iinclude -O0
 BUILD_DIR = build
 SRC_DIR = src
 TARGET = main
-EXPAND_DIR = expanded
+EXPAND_DIR = build
 
 # List your source files here
 SRC_FILES = $(wildcard $(SRC_DIR)/*.c)
