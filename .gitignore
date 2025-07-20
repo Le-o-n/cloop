@@ -1,3 +1,6 @@
+# Macro Expansions
+*.i
+
 # Prerequisites
 *.d
 
