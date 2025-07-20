@@ -1,7 +1,7 @@
 .PHONY: all clean expand
 
 CC = gcc
-C_FLAGS = -Wall -g -Iinclude
+C_FLAGS = -Wall -g -Iinclude -O0
 BUILD_DIR = build
 SRC_DIR = src
 TARGET = main
