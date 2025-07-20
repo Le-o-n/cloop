@@ -3,39 +3,52 @@
 #include "cloop.h"
 
 
-CLASS_BEGIN(MyObject);
+cloop_class(MyObject,
 
     #define MyObject_METHODS(T, f)     \
         f(T, void, inc_x, (T* self)) \
-        f(T, int,  get_x, (T* self)) \
+        f(T, int,  get_x, (T* self)) 
 
     #define MyObject_ATTRIBUTES(T, f) \
-        f(T, int, _x) \
+        f(T, int, _x) 
 
     #define MyObject_CTOR(T, f) \
-        f(T, void, ctor, (T* self, int x)) \
+        f(T, void, ctor, (T* self, int x)) 
 
     #define MyObject_DTOR(T, f) \
         f(T, void, dtor, (T* self))
+    
+    
+    
+    cloop_def(MyObject, 
+        void, ctor, (MyObject* self, int x), {
+            printf("CTOR");
+        }
+    )
 
-CLASS_END(MyObject);
+    cloop_def(MyObject, 
+        void, dtor, (MyObject* self), {
+            printf("DTOR");
+        }
+    )
+
+    cloop_def(MyObject, 
+        void, inc_x, (MyObject* self), {
+            printf("incrementing x");
+            self->_x++;
+        }
+    )
+    
+    cloop_def(MyObject, 
+        int, get_x, (MyObject* self), {
+            printf("getting x");
+            return self->_x;
+        }
+    )
+    
+)
 
 
-static void MyObject_ctor(MyObject* self, int x){
-
-}
-
-static void MyObject_dtor(MyObject* self){
-
-}
-
-static void MyObject_inc_x(MyObject* self){
-    self->_x++;
-}
-
-static int MyObject_get_x(MyObject* self){
-    return self->_x;
-}
 
 
 
@@ -53,6 +66,6 @@ int main(void){
         printf("x: %d\n", cloop_call(my_obj, get_x));
     }
 
-    cloop_del(MyObject, (my_obj));
+    cloop_del(my_obj);
     return 0;
 }
