@@ -5,18 +5,18 @@
 
 CLASS_BEGIN(MyObject);
 
-    #define MyObject_METHODS(X)     \
-        X(MyObject, void, inc_x, (MyObject* self)) \
-        X(MyObject, int,  get_x, (MyObject* self)) \
+    #define MyObject_METHODS(T, f)     \
+        f(T, void, inc_x, (T* self)) \
+        f(T, int,  get_x, (T* self)) \
 
-    #define MyObject_ATTRIBUTES(X) \
-        X(MyObject, int, _x) \
+    #define MyObject_ATTRIBUTES(T, f) \
+        f(T, int, _x) \
 
-    #define MyObject_CTOR(X) \
-        X(MyObject, void, ctor, (MyObject* self, int x)) \
+    #define MyObject_CTOR(T, f) \
+        f(T, void, ctor, (T* self, int x)) \
 
-    #define MyObject_DTOR(X) \
-        X(MyObject, void, dtor, (MyObject* self))
+    #define MyObject_DTOR(T, f) \
+        f(T, void, dtor, (T* self))
 
 CLASS_END(MyObject);
 
