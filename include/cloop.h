@@ -131,7 +131,7 @@ ObjType##_METHODS (ObjType, CLOOP_METHOD_DECLARE)
   } while (0)
 
 #define cloop_call(obj_ptr, func, ...) \
-    ({ (obj_ptr)->vt. func ((obj_ptr) __VA_OPT__(,) __VA_ARGS__);})
+    ({ (obj_ptr)->vt.func((obj_ptr) __VA_OPT__(,) __VA_ARGS__);})
 
 #define CLASS_BEGIN(classname)              \
     typedef struct classname classname;

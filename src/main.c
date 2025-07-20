@@ -44,8 +44,13 @@ int main(void){
 
     for (int i=0; i<10; i++){
         
+        my_obj->vt.inc_x(my_obj);
+        
+        printf("x: %d\n", my_obj->vt.get_x(my_obj));
+        
+
         cloop_call(my_obj, inc_x);
-        printf("x: %d", cloop_call(my_obj, get_x));
+        printf("x: %d\n", cloop_call(my_obj, get_x));
     }
 
     cloop_del(MyObject, (my_obj));
