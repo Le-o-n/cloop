@@ -1,16 +1,15 @@
-.PHONY: all clean expand
+.PHONY: all clean expand help
 
 CC = gcc
 C_FLAGS = -Wall -g -Iinclude -O0
 BUILD_DIR = build
 SRC_DIR = src
 TARGET = main
-EXPAND_DIR = build
 
 # List your source files here
 SRC_FILES = $(wildcard $(SRC_DIR)/*.c)
 OBJ_FILES = $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/%.o,$(SRC_FILES))
-EXPANDED_FILES = $(patsubst $(SRC_DIR)/%.c,$(EXPAND_DIR)/%.i,$(SRC_FILES))
+EXPANDED_FILES = $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/%.i,$(SRC_FILES))
 
 all: $(BUILD_DIR)/$(TARGET)
 
@@ -22,13 +21,14 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c | $(BUILD_DIR)
 	@echo "Compiling $<..."
 	$(CC) $(C_FLAGS) -c $< -o $@
 
+$(BUILD_DIR)/%.i: $(SRC_DIR)/%.c | $(BUILD_DIR)
+	@echo "Compiling $<..."
+	$(CC) $(C_FLAGS) -E $< -o $@
+
 $(BUILD_DIR):
 	@echo "Creating build dir"
 	mkdir -p $(BUILD_DIR)
 
-$(EXPAND_DIR):
-	@echo "Creating expanded sources dir"
-	mkdir -p $(EXPAND_DIR)
 
 # Rule to expand macros
 expand: $(EXPANDED_FILES) | $(EXPAND_DIR)
@@ -43,3 +43,6 @@ clean:
 
 run: $(BUILD_DIR)/$(TARGET)
 	$(BUILD_DIR)/$(TARGET)
+
+help: 
+	@echo all clean expand

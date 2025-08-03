@@ -5,7 +5,7 @@
 
 cloop_class(MyObject,
 
-    #define MyObject_METHODS(T, f)     \
+    #define MyObject_METHODS(T, f) \
         f(T, void, inc_x, (T* self)) \
         f(T, int,  get_x, (T* self)) 
 
@@ -17,31 +17,29 @@ cloop_class(MyObject,
 
     #define MyObject_DTOR(T, f) \
         f(T, void, dtor, (T* self))
-    
-    
-    
+
     cloop_def(MyObject, 
         void, ctor, (MyObject* self, int x), {
-            printf("CTOR");
+            printf("CTOR\n");
         }
     )
 
     cloop_def(MyObject, 
         void, dtor, (MyObject* self), {
-            printf("DTOR");
+            printf("DTOR\n");
         }
     )
 
     cloop_def(MyObject, 
         void, inc_x, (MyObject* self), {
-            printf("incrementing x");
+            printf("incrementing x\n");
             self->_x++;
         }
     )
     
     cloop_def(MyObject, 
         int, get_x, (MyObject* self), {
-            printf("getting x");
+            printf("getting x\n");
             return self->_x;
         }
     )

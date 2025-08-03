@@ -59,11 +59,6 @@
 #endif
 
 
-typedef struct CLOOP_OBJECT{
-    int _ : 1
-}CLOOP_OBJECT;
-
-
 
 /*
 
@@ -99,7 +94,6 @@ typedef struct CLOOP_OBJECT{
 #define CLOOP_BRANCH_IF_ZERO(count, zero, nonzero) CLOOP_BRANCH_IF_ZERO_IMPL(count, zero, nonzero)
 #define CLOOP_BRANCH_IF_ZERO_IMPL(count, zero, nonzero) CLOOP_BRANCH_IF_ZERO_##count(zero, nonzero)
 
-
 /*
 
 =========== Class Declaration ===========
@@ -125,23 +119,37 @@ typedef struct CLOOP_OBJECT{
 #define CLOOP_ATTRIBUTE_DECLARE(obj_type,type,name) \
     type name ;
 
-#define CLOOP_DEFINE_CLASS(ObjType)                                 \
-                                                                     \
+#define CLOOP_VTABLE_CLASS_DISPATCH(branch, ParentClass, ...) \
+    CLOOP_VTABLE_CLASS_ ## branch (ParentClass)
+
+#define CLOOP_VTABLE_CLASS_0(...) void
+#define CLOOP_VTABLE_CLASS_1(ParentClass) ParentClass ## _VTable
+
+
+
+
+
+#define CLOOP_DEFINE_CLASS(ObjType)\
+    typedef struct ObjType ObjType;\
     typedef struct ObjType##_VTable {                                   \
-        void (*ctor) ObjType##_CTOR (ObjType, CLOOP_METHOD_ARGS);                                         \
-        void (*dtor) ObjType##_DTOR (ObjType, CLOOP_METHOD_ARGS);                                         \
-        ObjType##_METHODS (ObjType, CLOOP_METHOD_POINTER_IN_VTABLE)              \
-    } ObjType##_VTable;                                                 \
-                                                                        \
+        void (*ctor) ObjType##_CTOR (ObjType, CLOOP_METHOD_ARGS);       \
+        void (*dtor) ObjType##_DTOR (ObjType, CLOOP_METHOD_ARGS);       \
+        ObjType##_METHODS (ObjType, CLOOP_METHOD_POINTER_IN_VTABLE)     \
+    } ObjType##_VTable;                                             \
     typedef struct ObjType {                                            \
-        ObjType##_VTable vt;                                           \
-        ObjType##_ATTRIBUTES (ObjType, CLOOP_ATTRIBUTE_DECLARE)                  \
+        ObjType##_VTable vt;                                            \
+        ObjType##_ATTRIBUTES (ObjType, CLOOP_ATTRIBUTE_DECLARE)         \
         int _is_heap_allocated : 1;                                     \
         int _is_subclass : 1;                                           \
     } ObjType;                                                          \
                                                                         \
-    ObjType##_CTOR (ObjType, CLOOP_METHOD_DECLARE)                         \
-    ObjType##_DTOR (ObjType, CLOOP_METHOD_DECLARE)                          \
+                                                                        \
+                                                 \
+                                                                        \
+                                                                        \
+                                                                        \
+    ObjType##_CTOR (ObjType, CLOOP_METHOD_DECLARE)                      \
+    ObjType##_DTOR (ObjType, CLOOP_METHOD_DECLARE)                      \
     ObjType##_METHODS (ObjType, CLOOP_METHOD_DECLARE)
 
 
@@ -194,25 +202,25 @@ typedef struct CLOOP_OBJECT{
     ({ (obj_ptr)->vt.func((obj_ptr) __VA_OPT__(,) __VA_ARGS__);})
 
 #define cloop_def(ObjType, ret, func, args, body) \
-   static ret ObjType ## _ ## func ## args body 
+   static ret ObjType ## _ ## func args body
 
 #define CLOOP_CLASS_BEGIN(classname)              \
-    typedef struct classname classname; 
+    CLOOP_DEFINE_CLASS(classname); \
+    classname##_ATTRIBUTES(classname, CLOOP_ATTRIBUTE_DECLARE) \
+    classname##_METHODS(classname, CLOOP_METHOD_DECLARE)
+    
 
-#define CLOOP_CLASS_END(classname) \
-    CLOOP_DEFINE_CLASS(classname);
+#define CLOOP_CLASS_END(classname, ...) \
+    
 
-#define CLOOP_CLASS_END_EXTENDS(classname, extends) \
-    CLOOP_DEFINE_CLASS_EXTENDS(classname, extends);
-
-#define cloop_class(classname, class_definition) \
+#define cloop_class(classname, class_implementation) \
     CLOOP_CLASS_BEGIN(classname) \
-    class_definition \
+    class_implementation \
     CLOOP_CLASS_END(classname) 
 
 #define cloop_class_extends(classname, extends, class_definition) \
     CLOOP_CLASS_BEGIN(classname) \
     class_definition \
-    CLOOP_CLASS_END(classname) 
+    CLOOP_CLASS_END(classname, extends) 
 
 #endif // CLOOP_H_
