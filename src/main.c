@@ -28,21 +28,21 @@ cloop_class(MyObject,
         void, dtor, (MyObject* self), {
             printf("DTOR\n");
         }
-    )
+    );
 
     cloop_def(MyObject, 
         void, inc_x, (MyObject* self), {
             printf("incrementing x\n");
             self->_x++;
         }
-    )
+    );
     
     cloop_def(MyObject, 
         int, get_x, (MyObject* self), {
             printf("getting x\n");
             return self->_x;
         }
-    )
+    );
     
 )
 

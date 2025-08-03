@@ -1,21 +1,101 @@
 /*
+
+=================================================
+
     C Lightweight Object Oriented Programming
                     [CLOOP]
 
                   by Leon Bass
                  [github/Le-o-n]
-                
+
+                 
+================================================
+
+
+
+-------------------
+    Public API
+-------------------
+
+===================
+    cloop_init
+===================
+    ObjType         - Name of the class, user-defined.      
+    obj_ptr         - Pointer to the object instance (struct).
+    __VA_ARGS__     - Variable args forwarded to the constructor.
+
+    desc:
+        initialise a class named <ObjType> using a pointer to the 
+        class/struct to be initialised, <obj_ptr>. All parameters
+        in <__VA_ARGS__> will be forwarded to the user-defined 
+        constructor method.
+
+
+===================
+    cloop_new
+===================
+    ObjType         - Name of the class, user-defined.      
+    __VA_ARGS__     - Variable args forwarded to the constructor.
+
+    desc:
+        initialise a class named <ObjType> on the heap, requires a call
+        to `cloop_del` to destruct object. All parameters in 
+        <__VA_ARGS__> will be forwarded to the user-defined constructor 
+        method.
+
+
+===================
+    cloop_del
+===================
+    obj_ptr         - Pointer to the class instance      
+    __VA_ARGS__     - Variable args forwarded to the destructor.
+
+    desc:
+        Calls destructor method and if object was heap allocated,
+        the memory is freed. 
+
+
+===================
+    cloop_call
+===================
+    obj_ptr         - Pointer to the class instance      
+    func            - function/method name
+    __VA_ARGS__     - Variable args forwarded to the method call.
+
+    desc:
+        Calls object method.
+
+
+===================
+    cloop_def
+===================
+    ObjType         - Object that owns the defined method
+    ret             - Return type for the defined method
+    func            - Function name for the method
+    args            - Type-argument list, enclosed in 
+                      parenthesis
+    body            - body of the function enclosed in 
+                      curly-braces.
+
+    desc:
+       Implementation of the object method. 
+
+===================
+    cloop_class
+===================
+    classname               - Name of the class/object
+    class_implementation    - implementation of the class
+
+    desc:
+       Implementation of the class.
+
+
+
 */
 
 
 #ifndef CLOOP_H_
 #define CLOOP_H_
-
-/*
-
-=========== Includes ===========
-
-*/
 
 #include <stdarg.h>
 #include <stdio.h> 
@@ -96,7 +176,7 @@
 
 /*
 
-=========== Class Declaration ===========
+=========== Private API ===========
 
 */
 
@@ -126,9 +206,6 @@
 #define CLOOP_VTABLE_CLASS_1(ParentClass) ParentClass ## _VTable
 
 
-
-
-
 #define CLOOP_DEFINE_CLASS(ObjType)\
     typedef struct ObjType ObjType;\
     typedef struct ObjType##_VTable {                                   \
@@ -153,12 +230,22 @@
     ObjType##_METHODS (ObjType, CLOOP_METHOD_DECLARE)
 
 
+#define CLOOP_CLASS_BEGIN(classname)              \
+    CLOOP_DEFINE_CLASS(classname); \
+    classname##_ATTRIBUTES(classname, CLOOP_ATTRIBUTE_DECLARE) \
+    classname##_METHODS(classname, CLOOP_METHOD_DECLARE)
+    
 
+#define CLOOP_CLASS_END(classname, ...) \
+    
 
 /*
 
-=========== Class Instantiation ===========
+============================================
 
+               Public API             
+
+============================================
 */
 
 #define cloop_init(ObjType, obj_ptr, ...) \
@@ -204,23 +291,11 @@
 #define cloop_def(ObjType, ret, func, args, body) \
    static ret ObjType ## _ ## func args body
 
-#define CLOOP_CLASS_BEGIN(classname)              \
-    CLOOP_DEFINE_CLASS(classname); \
-    classname##_ATTRIBUTES(classname, CLOOP_ATTRIBUTE_DECLARE) \
-    classname##_METHODS(classname, CLOOP_METHOD_DECLARE)
-    
-
-#define CLOOP_CLASS_END(classname, ...) \
-    
 
 #define cloop_class(classname, class_implementation) \
     CLOOP_CLASS_BEGIN(classname) \
     class_implementation \
     CLOOP_CLASS_END(classname) 
 
-#define cloop_class_extends(classname, extends, class_definition) \
-    CLOOP_CLASS_BEGIN(classname) \
-    class_definition \
-    CLOOP_CLASS_END(classname, extends) 
 
 #endif // CLOOP_H_
