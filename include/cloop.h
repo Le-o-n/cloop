@@ -206,7 +206,7 @@
 #define CLOOP_VTABLE_CLASS_1(ParentClass) ParentClass ## _VTable
 
 
-#define CLOOP_DEFINE_CLASS(ObjType)\
+#define CLOOP_CLASS_BEGIN(ObjType)\
     typedef struct ObjType ObjType;\
     typedef struct ObjType##_VTable {                                   \
         void (*ctor) ObjType##_CTOR (ObjType, CLOOP_METHOD_ARGS);       \
@@ -217,27 +217,14 @@
         ObjType##_VTable vt;                                            \
         ObjType##_ATTRIBUTES (ObjType, CLOOP_ATTRIBUTE_DECLARE)         \
         int _is_heap_allocated : 1;                                     \
-        int _is_subclass : 1;                                           \
     } ObjType;                                                          \
-                                                                        \
-                                                                        \
-                                                 \
-                                                                        \
-                                                                        \
                                                                         \
     ObjType##_CTOR (ObjType, CLOOP_METHOD_DECLARE)                      \
     ObjType##_DTOR (ObjType, CLOOP_METHOD_DECLARE)                      \
     ObjType##_METHODS (ObjType, CLOOP_METHOD_DECLARE)
 
 
-#define CLOOP_CLASS_BEGIN(classname)              \
-    CLOOP_DEFINE_CLASS(classname); \
-    classname##_ATTRIBUTES(classname, CLOOP_ATTRIBUTE_DECLARE) \
-    classname##_METHODS(classname, CLOOP_METHOD_DECLARE)
-    
-
-#define CLOOP_CLASS_END(classname, ...) \
-    
+#define CLOOP_CLASS_END(classname, ...)
 
 /*
 
@@ -250,10 +237,10 @@
 
 #define cloop_init(ObjType, obj_ptr, ...) \
     ({\
-        memset((void *)obj_ptr, 0, sizeof(ObjType));          \
-        obj_ptr->vt.ctor = ObjType##_ctor; \
-        obj_ptr->vt.dtor = ObjType##_dtor; \
-        ObjType ## _METHODS(ObjType, obj_ptr CLOOP_METHOD_REGISTER)\
+        memset((void *)(obj_ptr), 0, sizeof(ObjType));          \
+        (obj_ptr)->vt.ctor = ObjType##_ctor; \
+        (obj_ptr)->vt.dtor = ObjType##_dtor; \
+        ObjType ## _METHODS(ObjType, (obj_ptr) CLOOP_METHOD_REGISTER)\
         ObjType##_ctor(obj_ptr, __VA_ARGS__);\
         obj_ptr;\
     })
@@ -292,9 +279,9 @@
    static ret ObjType ## _ ## func args body
 
 
-#define cloop_class(classname, class_implementation) \
+#define cloop_class(classname, ...) \
+    __VA_ARGS__ \
     CLOOP_CLASS_BEGIN(classname) \
-    class_implementation \
     CLOOP_CLASS_END(classname) 
 
 

@@ -3,46 +3,42 @@
 CC = gcc
 C_FLAGS = -Wall -g -Iinclude -O0
 BUILD_DIR = build
-SRC_DIR = src
-TARGET = main
+EXAMPLES_DIR = examples
+EXPAND_DIR = expanded
 
-# List your source files here
-SRC_FILES = $(wildcard $(SRC_DIR)/*.c)
-OBJ_FILES = $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/%.o,$(SRC_FILES))
-EXPANDED_FILES = $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/%.i,$(SRC_FILES))
+SRC_FILES = $(wildcard $(EXAMPLES_DIR)/*.c)
+BINARIES = $(patsubst $(EXAMPLES_DIR)/%.c,$(BUILD_DIR)/%,$(SRC_FILES))
+EXPANDED_FILES = $(patsubst $(EXAMPLES_DIR)/%.c,$(EXPAND_DIR)/%.i,$(SRC_FILES))
 
-all: $(BUILD_DIR)/$(TARGET)
+# Default target: build all individual binaries
+all: $(BINARIES)
 
-$(BUILD_DIR)/$(TARGET): $(OBJ_FILES) | $(BUILD_DIR)
-	@echo "Linking..."
-	$(CC) $^ -o $@
+# Compile each .c to its own binary
+$(BUILD_DIR)/%: $(EXAMPLES_DIR)/%.c | $(BUILD_DIR)
+	@echo "Compiling $< -> $@"
+	$(CC) $(C_FLAGS) $< -o $@
 
-$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c | $(BUILD_DIR)
-	@echo "Compiling $<..."
-	$(CC) $(C_FLAGS) -c $< -o $@
+# Expand all: preprocess each .c into its own .i
+expand: $(EXPANDED_FILES)
 
-$(BUILD_DIR)/%.i: $(SRC_DIR)/%.c | $(BUILD_DIR)
-	@echo "Compiling $<..."
+$(EXPAND_DIR)/%.i: $(EXAMPLES_DIR)/%.c | $(EXPAND_DIR)
+	@echo "Expanding $< -> $@"
 	$(CC) $(C_FLAGS) -E $< -o $@
 
+# Ensure build/ and expanded/ dirs exist
 $(BUILD_DIR):
-	@echo "Creating build dir"
 	mkdir -p $(BUILD_DIR)
 
-
-# Rule to expand macros
-expand: $(EXPANDED_FILES) | $(EXPAND_DIR)
-
-$(EXPAND_DIR)/%.i: $(SRC_DIR)/%.c | $(EXPAND_DIR)
-	@echo "Expanding macros in $<..."
-	$(CC) $(C_FLAGS) -E $< -o $@
+$(EXPAND_DIR):
+	mkdir -p $(EXPAND_DIR)
 
 clean:
 	@echo "Cleaning..."
 	rm -rf $(BUILD_DIR) $(EXPAND_DIR)
 
-run: $(BUILD_DIR)/$(TARGET)
-	$(BUILD_DIR)/$(TARGET)
-
-help: 
-	@echo all clean expand
+help:
+	@echo "Available targets:"
+	@echo "  all     - Compile all .c files into separate binaries"
+	@echo "  expand  - Expand all .c files to .i (preprocessed)"
+	@echo "  clean   - Remove build and expanded files"
+	@echo "  help    - Show this help message"
