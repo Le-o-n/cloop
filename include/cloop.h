@@ -279,10 +279,11 @@
    static ret ObjType ## _ ## func args body
 
 
-#define cloop_class(classname, ...) \
-    __VA_ARGS__ \
+#define cloop_class(classname, prototype, ...) \
+    prototype \
     CLOOP_CLASS_BEGIN(classname) \
-    CLOOP_CLASS_END(classname) 
-
+    __VA_ARGS__ \
+    CLOOP_CLASS_END(classname)
+    
 
 #endif // CLOOP_H_

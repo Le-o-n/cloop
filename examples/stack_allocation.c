@@ -3,7 +3,7 @@
 #include "cloop.h"
 
 // -------------
-//  prototype.h
+//  stack_alloc.h
 // -------------
 
 cloop_class(MyObject, 
@@ -25,7 +25,7 @@ cloop_class(MyObject,
 
 
 // -------------
-//  prototype.c
+//  stack_alloc.c
 // -------------
 
 cloop_def(MyObject, 
@@ -56,18 +56,18 @@ cloop_def(MyObject,
 
 
 int main(void){
-    MyObject my_obj;
+    MyObject my_obj;                        // stack allocated
     
-    cloop_init(MyObject, &my_obj, 1);
+    cloop_init(MyObject, &my_obj, 1);       // initialisation
 
     for (int i=0; i<10; i++){
         
-        my_obj.vt.inc_x(&my_obj);       // access vtable directly
-        cloop_call(&my_obj, inc_x);      // or use call macro
+        my_obj.vt.inc_x(&my_obj);           // access vtable directly
+        cloop_call(&my_obj, inc_x);         // or use call macro
 
         int x;
-        x = my_obj.vt.get_x(&my_obj);   // access vtable directly
-        x = cloop_call(&my_obj, get_x);  // or use call macro
+        x = my_obj.vt.get_x(&my_obj);       // access vtable directly
+        x = cloop_call(&my_obj, get_x);     // or use call macro
 
         printf("x: %d\n", x);
 
