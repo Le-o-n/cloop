@@ -8,6 +8,8 @@
 
 cloop_class(ParentObject, 
 
+    #define ParentObject_SUPER void*
+
     #define ParentObject_METHODS(T, f) \
         f(T, int, get_y, (T* self))
 
@@ -19,43 +21,55 @@ cloop_class(ParentObject,
     
     #define ParentObject_DTOR(T, f) \
         f(T, void, dtor, (T* self))
+    ,
+
+    cloop_def(ParentObject, 
+        int, get_y, (ParentObject* self), {
+            return self->_y;
+        }
+    )
+    
+    cloop_def(ParentObject, 
+        void, ctor, (ParentObject* self, int y), {
+            self->_y = y;
+        }
+    )
+    
+    
+    cloop_def(ParentObject, 
+        void, dtor, (ParentObject* self), {
+            
+        }
+    )
 
 )
 
+
 cloop_class(MyObject, 
+
+    #define MyObject_SUPER ParentObject
     
     #define MyObject_METHODS(T, f) \
-        f(T, ParentObject*, super, (T* self))
 
     #define MyObject_ATTRIBUTES(T, f) \
-        f(T, ParentObject*, _par) 
 
     #define MyObject_CTOR(T, f) \
         f(T, void, ctor, (T* self, int x))
 
     #define MyObject_DTOR(T, f) \
         f(T, void, dtor, (T* self))
-
     ,
 
     cloop_def(MyObject, 
-        ParentObject*, super, (MyObject* self), {
-            return self->_par;
+        void, ctor, (MyObject* self, int x), {
+            self->super = *cloop_new(ParentObject, x);
         }
     )
-
-    cloop_def(MyObject, 
-        void, ctor, (MyObject* self), {
-            cloop_new(ParentObject)
-        }
-    )
-
     cloop_def(MyObject, 
         void, dtor, (MyObject* self), {
             printf("DTOR\n");
         }
-    );
-
+    )
 );
 
 
@@ -70,18 +84,9 @@ int main(void){
     
     MyObject* my_obj = cloop_new(MyObject, 1);  // heap allocation
 
-    for (int i=0; i<10; i++){
-        
-        my_obj->vt.inc_x(my_obj);           // access vtable directly
-        cloop_call(my_obj, inc_x);          // or use call macro
+    cloop_superclass(MyObject)* my_obj_par = cloop_to_super(MyObject, my_obj);
 
-        int x;
-        x = my_obj->vt.get_x(my_obj);       // access vtable directly
-        x = cloop_call(my_obj, get_x);      // or use call macro
-
-        printf("x: %d\n", x);
-
-    }
+    printf("n: %d", cloop_call(my_obj_par, get_y));
 
     cloop_del(my_obj); // calls destructor and frees memory
     return 0;

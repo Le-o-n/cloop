@@ -199,12 +199,6 @@
 #define CLOOP_ATTRIBUTE_DECLARE(obj_type,type,name) \
     type name ;
 
-#define CLOOP_VTABLE_CLASS_DISPATCH(branch, ParentClass, ...) \
-    CLOOP_VTABLE_CLASS_ ## branch (ParentClass)
-
-#define CLOOP_VTABLE_CLASS_0(...) void
-#define CLOOP_VTABLE_CLASS_1(ParentClass) ParentClass ## _VTable
-
 
 #define CLOOP_CLASS_BEGIN(ObjType)\
     typedef struct ObjType ObjType;\
@@ -213,7 +207,8 @@
         void (*dtor) ObjType##_DTOR (ObjType, CLOOP_METHOD_ARGS);       \
         ObjType##_METHODS (ObjType, CLOOP_METHOD_POINTER_IN_VTABLE)     \
     } ObjType##_VTable;                                             \
-    typedef struct ObjType {                                            \
+    typedef struct ObjType {\
+        ObjType##_SUPER super;                                            \
         ObjType##_VTable vt;                                            \
         ObjType##_ATTRIBUTES (ObjType, CLOOP_ATTRIBUTE_DECLARE)         \
         int _is_heap_allocated : 1;                                     \
@@ -285,5 +280,18 @@
     __VA_ARGS__ \
     CLOOP_CLASS_END(classname)
     
+
+#define cloop_to_super(cls, obj_ptr) \
+  ((cls##_SUPER * ) obj_ptr)
+  
+#define cloop_to_super_l(cls, obj_ptr) \
+  cloop_to_super(cls, obj_ptr)
+
+#define cloop_to_super_r(cls, obj) \
+  ((cls##_SUPER) obj)
+
+#define cloop_superclass(cls) \
+  cls ## _SUPER
+  
 
 #endif // CLOOP_H_
