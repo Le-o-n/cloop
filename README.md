@@ -30,18 +30,26 @@ while keeping the implementation pure C.
 
 ### 2. Define a Class
 ```c
-#define MyClass_ATTRIBUTES(cls, DECLARE)     DECLARE(cls, int, value)
-
-#define MyClass_METHODS(cls, DECLARE)     DECLARE(cls, void, print_value, (cls *self))
-
-#define MyClass_CTOR(cls, DECLARE)     DECLARE(cls, void, ctor, (cls *self, int value))
-
-#define MyClass_DTOR(cls, DECLARE)     DECLARE(cls, void, dtor, (cls *self))
 
 typedef struct { } MyClass_SUPER;
 
 cloop_class(MyClass,
     // Methods implementation
+
+    #define MyClass_ATTRIBUTES(cls, DECLARE)\
+    DECLARE(cls, int, value)
+
+    #define MyClass_METHODS(cls, DECLARE)\
+        DECLARE(cls, void, print_value, (cls *self))
+
+    #define MyClass_CTOR(cls, DECLARE)\
+        DECLARE(cls, void, ctor, (cls *self, int value))
+
+    #define MyClass_DTOR(cls, DECLARE)\
+        DECLARE(cls, void, dtor, (cls *self))
+
+    ,
+
     cloop_def(MyClass, void, ctor, (MyClass *self, int value), {
         self->value = value;
     });
@@ -60,13 +68,22 @@ cloop_class(MyClass,
 ```c
 int main(void) {
     // Create object on heap
-    MyClass *obj = cloop_new(MyClass, 42);
+    MyClass* obj_heap = cloop_new(MyClass, 42);
+    
+    // Create object on stack
+    MyClass obj_stack = {0};
+    MyClass* obj_stack_ptr = &obj_stack;
 
+    cloop_init(MyClass, obj_stack_ptr, ...);    
+    
+    ...
+    
     // Call a method
-    cloop_call(obj, print_value);
-
+    cloop_call(obj_ptr, print_value);
+    obj_ptr->vt.print_value()
+    
     // Destroy object
-    cloop_del(obj);
+    cloop_del(obj_ptr);
 
     return 0;
 }
