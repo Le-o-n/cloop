@@ -1,97 +1,92 @@
 /*
 
-=================================================
+    =================================================
 
-    C Lightweight Object Oriented Programming
-                    [CLOOP]
+        C Lightweight Object-Oriented Programming
+                        [CLOOP]
 
-                  by Leon Bass
-                 [github/Le-o-n]
+                    by Leon Bass
+                    [github/Le-o-n]
 
-                 
-================================================
+    =================================================
 
+    -------------------
+        Public API
+    -------------------
 
+    ===================
+        cloop_init
+    ===================
+    Parameters:
+        ObjType         - Name of the class (user-defined).
+        obj_ptr         - Pointer to the object instance (struct).
+        __VA_ARGS__     - Optional arguments forwarded to the constructor.
 
--------------------
-    Public API
--------------------
+    Description:
+        Initialises a class of type <ObjType> using the object pointer <obj_ptr>.
+        All arguments in <__VA_ARGS__> are forwarded to the user-defined
+        constructor.
 
-===================
-    cloop_init
-===================
-    ObjType         - Name of the class, user-defined.      
-    obj_ptr         - Pointer to the object instance (struct).
-    __VA_ARGS__     - Variable args forwarded to the constructor.
+    ===================
+        cloop_new
+    ===================
+    Parameters:
+        ObjType         - Name of the class (user-defined).
+        __VA_ARGS__     - Optional arguments forwarded to the constructor.
 
-    desc:
-        initialise a class named <ObjType> using a pointer to the 
-        class/struct to be initialised, <obj_ptr>. All parameters
-        in <__VA_ARGS__> will be forwarded to the user-defined 
-        constructor method.
+    Description:
+        Allocates and initialises a class of type <ObjType> on the heap.
+        The object must later be freed using `cloop_del`.
+        All arguments in <__VA_ARGS__> are forwarded to the user-defined
+        constructor.
 
+    ===================
+        cloop_del
+    ===================
+    Parameters:
+        obj_ptr         - Pointer to the class instance.
+        __VA_ARGS__     - Optional arguments forwarded to the destructor.
 
-===================
-    cloop_new
-===================
-    ObjType         - Name of the class, user-defined.      
-    __VA_ARGS__     - Variable args forwarded to the constructor.
+    Description:
+        Calls the object's destructor. If the object was allocated on the heap,
+        its memory is freed.
 
-    desc:
-        initialise a class named <ObjType> on the heap, requires a call
-        to `cloop_del` to destruct object. All parameters in 
-        <__VA_ARGS__> will be forwarded to the user-defined constructor 
-        method.
+    ===================
+        cloop_call
+    ===================
+    Parameters:
+        obj_ptr         - Pointer to the class instance.
+        func            - Method name to call.
+        __VA_ARGS__     - Optional arguments forwarded to the method.
 
+    Description:
+        Calls the specified method on the given object.
 
-===================
-    cloop_del
-===================
-    obj_ptr         - Pointer to the class instance      
-    __VA_ARGS__     - Variable args forwarded to the destructor.
+    ===================
+        cloop_def
+    ===================
+    Parameters:
+        ObjType         - Object type that owns the method.
+        ret             - Return type of the method.
+        func            - Method name.
+        args            - Parameter list, enclosed in parentheses.
+        body            - Function body, enclosed in curly braces.
 
-    desc:
-        Calls destructor method and if object was heap allocated,
-        the memory is freed. 
+    Description:
+        Defines a method belonging to an object.
 
+    ===================
+        cloop_class
+    ===================
+    Parameters:
+        classname               - Name of the class/object.
+        class_implementation    - Implementation of the class.
 
-===================
-    cloop_call
-===================
-    obj_ptr         - Pointer to the class instance      
-    func            - function/method name
-    __VA_ARGS__     - Variable args forwarded to the method call.
-
-    desc:
-        Calls object method.
-
-
-===================
-    cloop_def
-===================
-    ObjType         - Object that owns the defined method
-    ret             - Return type for the defined method
-    func            - Function name for the method
-    args            - Type-argument list, enclosed in 
-                      parenthesis
-    body            - body of the function enclosed in 
-                      curly-braces.
-
-    desc:
-       Implementation of the object method. 
-
-===================
-    cloop_class
-===================
-    classname               - Name of the class/object
-    class_implementation    - implementation of the class
-
-    desc:
-       Implementation of the class.
-
-
+    Description:
+        Defines the full implementation of a class.
 
 */
+
 
 
 #ifndef CLOOP_H_
@@ -131,7 +126,7 @@
     #ifndef abort
         #include <windows.h>
         static inline void _abort_win(void){
-            ExitProcess(3);
+            ExitProcess(1);
         }
         #define abort() _abort_win()
     #endif
@@ -146,9 +141,9 @@
 
 */
 
-#define _CLOOP_NARG_IMPL(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12,_13,_14,_15,_16,N,...) N
+#define _CLOOP_NARG_IMPL(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12,_13,_14,_15,_16,_17,_18,_19,_20,_21,_22,_23,_24,_25,_26,_27,_28,_29,_30,_31,_32,_33,N,...) N
 #define CLOOP_NARG(...) \
-    _CLOOP_NARG_IMPL(__VA_ARGS__,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0)
+    _CLOOP_NARG_IMPL(__VA_ARGS__,33,32,31,30,29,28,27,26,25,24,23,22,21,20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0)
 
 #define CLOOP_JOIN_(X, Y) X ## Y
 #define CLOOP_JOIN(X, Y) CLOOP_JOIN_(X, Y)
@@ -170,6 +165,23 @@
 #define CLOOP_BRANCH_IF_ZERO_14(zero, nonzero) nonzero
 #define CLOOP_BRANCH_IF_ZERO_15(zero, nonzero) nonzero
 #define CLOOP_BRANCH_IF_ZERO_16(zero, nonzero) nonzero
+#define CLOOP_BRANCH_IF_ZERO_17(zero, nonzero) nonzero
+#define CLOOP_BRANCH_IF_ZERO_18(zero, nonzero) nonzero
+#define CLOOP_BRANCH_IF_ZERO_19(zero, nonzero) nonzero
+#define CLOOP_BRANCH_IF_ZERO_20(zero, nonzero) nonzero
+#define CLOOP_BRANCH_IF_ZERO_21(zero, nonzero) nonzero
+#define CLOOP_BRANCH_IF_ZERO_22(zero, nonzero) nonzero
+#define CLOOP_BRANCH_IF_ZERO_23(zero, nonzero) nonzero
+#define CLOOP_BRANCH_IF_ZERO_24(zero, nonzero) nonzero
+#define CLOOP_BRANCH_IF_ZERO_25(zero, nonzero) nonzero
+#define CLOOP_BRANCH_IF_ZERO_26(zero, nonzero) nonzero
+#define CLOOP_BRANCH_IF_ZERO_27(zero, nonzero) nonzero
+#define CLOOP_BRANCH_IF_ZERO_28(zero, nonzero) nonzero
+#define CLOOP_BRANCH_IF_ZERO_29(zero, nonzero) nonzero
+#define CLOOP_BRANCH_IF_ZERO_30(zero, nonzero) nonzero
+#define CLOOP_BRANCH_IF_ZERO_31(zero, nonzero) nonzero
+#define CLOOP_BRANCH_IF_ZERO_32(zero, nonzero) nonzero
+#define CLOOP_BRANCH_IF_ZERO_33(zero, nonzero) nonzero
 
 #define CLOOP_BRANCH_IF_ZERO(count, zero, nonzero) CLOOP_BRANCH_IF_ZERO_IMPL(count, zero, nonzero)
 #define CLOOP_BRANCH_IF_ZERO_IMPL(count, zero, nonzero) CLOOP_BRANCH_IF_ZERO_##count(zero, nonzero)

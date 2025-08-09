@@ -86,7 +86,8 @@ int main(void){
 
     cloop_superclass(MyObject)* my_obj_par = cloop_to_super(MyObject, my_obj);
 
-    printf("n: %d", cloop_call(my_obj_par, get_y));
+    printf("n: %d", cloop_call(my_obj_par, get_y));     
+    printf("n: %d", my_obj_par->vt.get_y(my_obj_par)); 
 
     cloop_del(my_obj); // calls destructor and frees memory
     return 0;
