@@ -8,6 +8,8 @@
 
 cloop_class(MyObject, 
     
+    #define MyObject_SUPER void*
+
     #define MyObject_METHODS(T, f) \
         f(T, void, inc_x, (T* self)) \
         f(T, int,  get_x, (T* self)) 
