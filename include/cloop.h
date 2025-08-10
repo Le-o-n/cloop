@@ -1,14 +1,13 @@
 /*
-
     =================================================
-
         C Lightweight Object-Oriented Programming
                         [CLOOP]
-
                     by Leon Bass
                     [github/Le-o-n]
-
     =================================================
+
+
+
 
     -------------------
         Public API
@@ -23,9 +22,8 @@
         __VA_ARGS__     - Optional arguments forwarded to the constructor.
 
     Description:
-        Initialises a class of type <ObjType> using the object pointer <obj_ptr>.
-        All arguments in <__VA_ARGS__> are forwarded to the user-defined
-        constructor.
+        Initialises an object of type <ObjType> at the given address <obj_ptr>.
+        The constructor is called with the arguments provided in <__VA_ARGS__>.
 
     ===================
         cloop_new
@@ -35,32 +33,43 @@
         __VA_ARGS__     - Optional arguments forwarded to the constructor.
 
     Description:
-        Allocates and initialises a class of type <ObjType> on the heap.
-        The object must later be freed using `cloop_del`.
-        All arguments in <__VA_ARGS__> are forwarded to the user-defined
-        constructor.
+        Allocates and initialises an object of type <ObjType> on the heap.
+        The constructor is called with the arguments provided in <__VA_ARGS__>.
+        The object must be freed with `cloop_del` to avoid memory leaks.
 
     ===================
         cloop_del
     ===================
     Parameters:
-        obj_ptr         - Pointer to the class instance.
+        obj_ptr         - Pointer to the object instance.
         __VA_ARGS__     - Optional arguments forwarded to the destructor.
 
     Description:
-        Calls the object's destructor. If the object was allocated on the heap,
-        its memory is freed.
+        Calls the object's destructor. If the object was heap-allocated,
+        its memory is freed automatically.
 
     ===================
         cloop_call
     ===================
     Parameters:
-        obj_ptr         - Pointer to the class instance.
-        func            - Method name to call.
+        obj_ptr         - Pointer to the object instance.
+        func            - Name of the method to call.
         __VA_ARGS__     - Optional arguments forwarded to the method.
 
     Description:
-        Calls the specified method on the given object.
+        Calls the specified method on the object instance.
+
+    ===================
+        cloop_staticcall
+    ===================
+    Parameters:
+        ObjType         - Name of the class (user-defined).
+        func            - Name of the static (non-virtual) function to call.
+        __VA_ARGS__     - Arguments to pass to the function.
+
+    Description:
+        Calls a class-level (static) function directly without using
+        the object's vtable.
 
     ===================
         cloop_def
@@ -73,19 +82,46 @@
         body            - Function body, enclosed in curly braces.
 
     Description:
-        Defines a method belonging to an object.
+        Defines an object method.
 
     ===================
         cloop_class
     ===================
     Parameters:
-        classname               - Name of the class/object.
+        ObjType                 - Name of the class/object.
+        class_prototype         - Prototype declarations for the class.
         class_implementation    - Implementation of the class.
 
     Description:
-        Defines the full implementation of a class.
+        Defines the full class implementation, including vtable setup.
 
+    ===================
+        cloop_to_super
+    ===================
+    Parameters:
+        ObjType     - Name of the derived class.
+        obj_ptr     - Pointer to an object of the derived class.
+
+    Description:
+        Casts an object pointer to its superclass pointer type.
+
+    ===================
+        cloop_to_super_l / cloop_to_super_r
+    ===================
+    Description:
+        Variants of `cloop_to_super` for left-hand or right-hand usage
+        in assignment or casting contexts.
+
+    ===================
+        cloop_superclass
+    ===================
+    Parameters:
+        ObjType     - Name of the class.
+
+    Description:
+        Expands to the type name of the object's superclass.
 */
+
 
 
 
@@ -248,7 +284,7 @@
         (obj_ptr)->vt.ctor = ObjType##_ctor; \
         (obj_ptr)->vt.dtor = ObjType##_dtor; \
         ObjType ## _METHODS(ObjType, (obj_ptr) CLOOP_METHOD_REGISTER)\
-        ObjType##_ctor(obj_ptr, __VA_ARGS__);\
+        ObjType##_ctor(obj_ptr __VA_OPT__(,) __VA_ARGS__);\
         obj_ptr;\
     })
 
@@ -258,12 +294,12 @@
         {\
             ObjType* CLOOP_JOIN(__tmp, CT) = (ObjType*) malloc(sizeof(ObjType));\
             if (! CLOOP_JOIN(__tmp, CT) ){perror("Could not allocate memory!");abort();}\
-            cloop_init(ObjType, CLOOP_JOIN(__tmp, CT), __VA_ARGS__);\
+            cloop_init(ObjType, CLOOP_JOIN(__tmp, CT) __VA_OPT__(,) __VA_ARGS__);\
             CLOOP_JOIN(__tmp, CT)->_is_heap_allocated = 1; \
             CLOOP_JOIN(__tmp, CT); \
         }\
     )
-#define cloop_new(ObjType, ...) cloop_new_(ObjType, __COUNTER__, __VA_ARGS__)
+#define cloop_new(ObjType, ...) cloop_new_(ObjType, __COUNTER__ __VA_OPT__(,) __VA_ARGS__)
 
 
 #define cloop_del(obj_ptr, ...)                                 \
@@ -282,28 +318,32 @@
 #define cloop_call(obj_ptr, func, ...) \
     ({ (obj_ptr)->vt.func((obj_ptr) __VA_OPT__(,) __VA_ARGS__);})
 
+#define cloop_staticcall(ObjType, func, ...) \
+    ({ ObjType ## _ ## func (__VA_ARGS__);})
+
+
 #define cloop_def(ObjType, ret, func, args, body) \
    static ret ObjType ## _ ## func args body
 
 
-#define cloop_class(classname, prototype, ...) \
+#define cloop_class(ObjType, prototype, ...) \
     prototype \
-    CLOOP_CLASS_BEGIN(classname) \
+    CLOOP_CLASS_BEGIN(ObjType) \
     __VA_ARGS__ \
-    CLOOP_CLASS_END(classname)
+    CLOOP_CLASS_END(ObjType)
     
 
-#define cloop_to_super(cls, obj_ptr) \
-  ((cls##_SUPER * ) obj_ptr)
+#define cloop_to_super(ObjType, obj_ptr) \
+  ((ObjType##_SUPER * ) obj_ptr)
   
-#define cloop_to_super_l(cls, obj_ptr) \
-  cloop_to_super(cls, obj_ptr)
+#define cloop_to_super_l(ObjType, obj_ptr) \
+  cloop_to_super(ObjType, obj_ptr)
 
-#define cloop_to_super_r(cls, obj) \
-  ((cls##_SUPER) obj)
+#define cloop_to_super_r(ObjType, obj) \
+  ((ObjType##_SUPER) obj)
 
-#define cloop_superclass(cls) \
-  cls ## _SUPER
+#define cloop_superclass(ObjType) \
+  ObjType ## _SUPER
   
 
 #endif // CLOOP_H_
