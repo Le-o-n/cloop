@@ -278,6 +278,8 @@
 ============================================
 */
 
+typedef struct {} cloop_Object; // baseclass
+
 #define cloop_init(ObjType, obj_ptr, ...) \
     ({\
         memset((void *)(obj_ptr), 0, sizeof(ObjType));          \
