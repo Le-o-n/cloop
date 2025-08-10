@@ -80,7 +80,7 @@ int main(void) {
     
     // Call a method
     cloop_call(obj_ptr, print_value);
-    obj_ptr->vt.print_value()
+    obj_ptr->vt.print_value(obj_ptr);
     
     // Destroy object
     cloop_del(obj_ptr);
