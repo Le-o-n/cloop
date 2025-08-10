@@ -37,7 +37,7 @@ cloop_class(MyClass,
     // Methods implementation
 
     #define MyClass_ATTRIBUTES(cls, DECLARE)\
-    DECLARE(cls, int, value)
+        DECLARE(cls, int, value)
 
     #define MyClass_METHODS(cls, DECLARE)\
         DECLARE(cls, void, print_value, (cls *self))
@@ -98,7 +98,8 @@ int main(void) {
 | `cloop_init(ObjType, obj_ptr, ...)` | Initialise an object on the stack. |
 | `cloop_new(ObjType, ...)` | Allocate and initialise an object on the heap. |
 | `cloop_del(obj_ptr, ...)` | Call destructor and free if heap-allocated. |
-| `cloop_call(obj_ptr, func, ...)` | Call an object method. |
+| `cloop_call(obj_ptr, func, ...)` | Call an object method. Passes the pointer to the object as the first parameter. |
+| `cloop_staticcall(ObjType, func, ...)` | Calls a static method. |
 | `cloop_def(ObjType, ret, func, args, body)` | Define a method for a class. |
 | `cloop_class(classname, prototype, ...)` | Implement a full class definition. |
 
