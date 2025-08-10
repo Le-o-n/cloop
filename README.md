@@ -1,4 +1,4 @@
-# CLOOP — C Lightweight Object-Oriented Programming
+<img width="1536" height="359" alt="c9f9c2c3-d03e-40ef-831b-e953f71c9382" src="https://github.com/user-attachments/assets/1e1c4715-87c4-4b7d-a73a-191130790c47" />
 
 **CLOOP** is a **header-only** library that brings object-oriented programming concepts to the C language.  
 It allows you to define **classes**, **methods**, and **constructors/destructors** using familiar OOP syntax,  
