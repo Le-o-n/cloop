@@ -281,6 +281,7 @@
 typedef struct {} cloop_Object; // baseclass
 
 #define cloop_init(ObjType, obj_ptr, ...) \
+    /* Instantiate an instance pointer, stack or heap*/\
     ({\
         memset((void *)(obj_ptr), 0, sizeof(ObjType));          \
         (obj_ptr)->vt.ctor = ObjType##_ctor; \
@@ -301,11 +302,13 @@ typedef struct {} cloop_Object; // baseclass
             CLOOP_JOIN(__tmp, CT); \
         }\
     )
-#define cloop_new(ObjType, ...) cloop_new_(ObjType, __COUNTER__ __VA_OPT__(,) __VA_ARGS__)
+#define cloop_new(ObjType, ...) \
+    /* Heap allocate an instance */\
+    cloop_new_(ObjType, __COUNTER__ __VA_OPT__(,) __VA_ARGS__)
 
 
 #define cloop_del(obj_ptr, ...)                                 \
-  do {                                                            \
+  do { /* Calls the destructor method 'dtor', then frees the memory if heap allocated. VA_ARGS are parameters to pass to 'dtor'.*/\
     if ((obj_ptr) == NULL) {                                             \
       perror("Freeing NULL ptr!");                                \
       abort();                                                    \
@@ -318,14 +321,19 @@ typedef struct {} cloop_Object; // baseclass
   } while (0)
 
 #define cloop_call(obj_ptr, func, ...) \
-    ({ (obj_ptr)->vt.func((obj_ptr) __VA_OPT__(,) __VA_ARGS__);})
+    ({ /* By default will pass obj_ptr as the first argument 'self' in the function call. VA_ARGS are parameters to pass to the function call*/\
+        (obj_ptr)->vt.func((obj_ptr) __VA_OPT__(,) __VA_ARGS__);\
+    })
 
 #define cloop_staticcall(ObjType, func, ...) \
-    ({ ObjType ## _ ## func (__VA_ARGS__);})
+    ({ /* A call to a method with no default parameters passed */\
+        ObjType ## _ ## func (__VA_ARGS__);\
+    })
 
 
 #define cloop_def(ObjType, ret, func, args, body) \
-   static ret ObjType ## _ ## func args body
+    /*Define a method for a class*/\
+    static ret ObjType ## _ ## func args body
 
 
 #define cloop_class(ObjType, prototype, ...) \
